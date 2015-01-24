@@ -96,7 +96,6 @@ func (s Storage) Search(url string) {
 }
 
 func buildIndexMapping() (*bleve.IndexMapping, error) {
-  // a generic reusable mapping for english text
   englishTextFieldMapping := bleve.NewTextFieldMapping()
   englishTextFieldMapping.Analyzer = "en"
 
@@ -105,19 +104,14 @@ func buildIndexMapping() (*bleve.IndexMapping, error) {
   keywordFieldMapping.Analyzer = "keyword"
 
   urlMapping := bleve.NewDocumentMapping()
-  // name
-  urlMapping.AddFieldMappingsAt("url", englishTextFieldMapping)
-  // description
+
+  urlMapping.AddFieldMappingsAt("url", keywordFieldMapping)
+
   urlMapping.AddFieldMappingsAt("title", englishTextFieldMapping)
-  urlMapping.AddFieldMappingsAt("type", keywordFieldMapping)
-  urlMapping.AddFieldMappingsAt("style", keywordFieldMapping)
-  urlMapping.AddFieldMappingsAt("category", keywordFieldMapping)
-  breweryMapping := bleve.NewDocumentMapping()
-  breweryMapping.AddFieldMappingsAt("name", englishTextFieldMapping)
-  breweryMapping.AddFieldMappingsAt("description", englishTextFieldMapping)
+  urlMapping.AddFieldMappingsAt("body", keywordFieldMapping)
+
   indexMapping := bleve.NewIndexMapping()
-  indexMapping.AddDocumentMapping("beer", urlMapping)
-  indexMapping.AddDocumentMapping("brewery", breweryMapping)
+  indexMapping.AddDocumentMapping("url", urlMapping)
   indexMapping.TypeField = "type"
   indexMapping.DefaultAnalyzer = "en"
   return indexMapping, nil
