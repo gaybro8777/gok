@@ -20,7 +20,7 @@ var (
 
 func NewStorage(path string) (Storage, error) {
   s := Storage { Path: path, }
-  db, err := bolt.Open(s.Path, 0600, nil)
+  db, err := bolt.Open(s.Path + ".bolt", 0600, nil)
   if err != nil {
     return s, err
   }
@@ -28,7 +28,7 @@ func NewStorage(path string) (Storage, error) {
   s.DB = db
   //defer db.Close()
 
-  index, err := bleve.Open("gok.bleve")
+  index, err := bleve.Open(s.Path + ".bleve")
   if err == bleve.ErrorIndexPathDoesNotExist {
     log.Printf("Creating new index...")
     // create a mapping
@@ -36,7 +36,7 @@ func NewStorage(path string) (Storage, error) {
     if err != nil {
       log.Fatal(err)
     }
-    index, err = bleve.New("gok.bleve", indexMapping)
+    index, err = bleve.New(s.Path + ".bleve", indexMapping)
     if err != nil {
       log.Fatal(err)
     }

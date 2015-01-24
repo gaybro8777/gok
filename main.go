@@ -34,7 +34,7 @@ func main() {
       Usage:     "add a link to the list",
       Action: func(c *cli.Context) {
         println("added task: ", c.Args().First())
-        _, err := NewStorage("gok.db")
+        _, err := NewStorage("gok")
         if err != nil {
           println("Succesfully creae db")
         }
@@ -45,7 +45,7 @@ func main() {
       ShortName: "a",
       Usage:     "add a link to the list",
       Action: func(c *cli.Context) {
-        s,_ := NewStorage("gok.db")
+        s,_ := NewStorage("gok")
         item, err := NewItem(c.Args().First())
 
         if err != nil {
@@ -63,7 +63,7 @@ func main() {
       ShortName: "l",
       Usage:     "list the link",
       Action: func(c *cli.Context) {
-        s,_ := NewStorage("gok.db")
+        s,_ := NewStorage("gok")
         s.List()
       },
     },
@@ -80,7 +80,7 @@ func main() {
       ShortName: "s",
       Usage: "Search link by keyword",
       Action: func(c *cli.Context) {
-        s, _ := NewStorage("gok.db")
+        s, _ := NewStorage("gok")
         s.Search(c.Args().First())
       },
     },
