@@ -51,8 +51,14 @@ web:
 web-push:
 	./scripts/website_push.sh
 
+
+
 build:
 	go build
+
+watch:
+	watchman watch $(shell pwd)/
+	watchman -- trigger $(shell pwd) rebuild -- make build
 
 .PHONY: all cov deps integ test vet web web-push test-nodep
 

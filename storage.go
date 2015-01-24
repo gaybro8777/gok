@@ -8,86 +8,56 @@ import (
 
 type Storage struct {
   Path string
+  DB   *bolt.DB
 }
 
 var (
-  db bolt.DB
+  db *bolt.DB
 )
 
-func InitStorage(path string) (error, Storage) {
+func NewStorage(path string) (Storage, error) {
   s := Storage { Path: path, }
-
-  // Open the my.db data file in your current directory.
-  // It will be created if it doesn't exist.
   db, err := bolt.Open(s.Path, 0600, nil)
   if err != nil {
-    return err, s
+    return s, err
   }
-  defer db.Close()
+  log.Println(db)
+  s.DB = db
+  //defer db.Close()
 
-  db.Update(func(tx *bolt.Tx) error {
-    _, err := tx.CreateBucket([]byte("MyList"))
-    if err != nil {
-      return fmt.Errorf("create bucket: %s", err)
-    }
-    return nil
-  })
-
-  return nil, s
+  return s, nil
 }
 
-func OpenStorage(path string) Storage {
-  s := Storage { Path: path, }
-
-  // Open the my.db data file in your current directory.
-  // It will be created if it doesn't exist.
-  db, err := bolt.Open(s.Path, 0600, nil)
-  if err != nil {
-      log.Fatal(err)
-  }
-  defer db.Close()
-
-  return s
-}
-
-func (s Storage) Add(url string) bool {
-  fmt.Println(url)
-  OpenStorage(s.Path)
-
-  db.Update(func(tx *bolt.Tx) error {
+func (s Storage) Add(item *Item) bool {
+  s.DB.Update(func(tx *bolt.Tx) error {
 
     b, err := tx.CreateBucketIfNotExists([]byte("MyList"))
     if err != nil {
         return err
     }
-    result := b.Put([]byte(url), []byte("My New Year post"))
-
+    result := b.Put([]byte(item.Url), []byte(item.Title))
     return result
-
   })
 
   return true
 }
 
 func (s Storage) List() {
-  OpenStorage(s.Path)
+  err := s.DB.View(func(tx *bolt.Tx) error {
 
-  err := db.View(func(tx *bolt.Tx) error {
-
-    fmt.Println("view db")
     b := tx.Bucket([]byte("MyList"))
     c := b.Cursor()
 
+    fmt.Println("-----------------------------------------")
+    fmt.Println("|Key----------------|Value------------------")
     for k, v := c.First(); k != nil; k, v = c.Next() {
-        fmt.Printf("key=%s, value=%s\n", k, v)
+        fmt.Printf("|%s | %s\n|", k, v)
     }
+    fmt.Println("----------------------------------------")
 
     return nil
   })
   if err != nil {
     log.Fatal(err)
   }
-
-  fmt.Println("Lol")
-
 }
