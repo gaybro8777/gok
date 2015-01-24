@@ -26,13 +26,28 @@ func TestCreateNewStorage(t *testing.T) {
 }
 
 func TestAddNewItem(t *testing.T) {
+  s, err := NewStorage("/tmp/gok")
 
+  item, err := NewItem("http://google.com")
+  if err != nil {
+    t.Error("Cannot add item")
+  }
+  s.Add(item)
 }
 
 func TestListItem(t *testing.T) {
-
+  s, err := NewStorage("/tmp/gok")
+  if err != nil {
+    t.Error("Cannot add item")
+  }
+  s.List()
 }
 
 func TestSearchItem(t *testing.T) {
+  s, err := NewStorage("/tmp/gok")
+  if err != nil {
+    t.Error("Cannot add item")
+  }
+  s.Search("Google")
 }
 
