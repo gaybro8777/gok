@@ -3,6 +3,10 @@
 A command line bookmark in Go Lang. It store the URL into a BoltDB and
 index into Bleve Search
 
+# Build status
+
+[![wercker status](https://app.wercker.com/status/bf910e4c4a30dc6c9293f037163dcdec/m "wercker status")](https://app.wercker.com/project/bykey/bf910e4c4a30dc6c9293f037163dcdec)
+
 # Install
 
 ```
