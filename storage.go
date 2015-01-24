@@ -4,11 +4,14 @@ import (
   "log"
   "github.com/boltdb/bolt"
   "fmt"
+
+  "github.com/blevesearch/bleve"
 )
 
 type Storage struct {
   Path string
   DB   *bolt.DB
+  Index bleve.Index
 }
 
 var (
@@ -25,6 +28,22 @@ func NewStorage(path string) (Storage, error) {
   s.DB = db
   //defer db.Close()
 
+  index, err := bleve.Open("gok.bleve")
+  if err == bleve.ErrorIndexPathDoesNotExist {
+    log.Printf("Creating new index...")
+    // create a mapping
+    indexMapping, err := buildIndexMapping()
+    if err != nil {
+      log.Fatal(err)
+    }
+    index, err = bleve.New("gok.bleve", indexMapping)
+    if err != nil {
+      log.Fatal(err)
+    }
+  }
+
+  s.Index = index
+
   return s, nil
 }
 
@@ -38,6 +57,8 @@ func (s Storage) Add(item *Item) bool {
     result := b.Put([]byte(item.Url), []byte(item.Title))
     return result
   })
+
+  s.Index.Index(item.Url, item)
 
   return true
 }
@@ -60,4 +81,44 @@ func (s Storage) List() {
   if err != nil {
     log.Fatal(err)
   }
+}
+
+func (s Storage) Search(url string) {
+  // search for some text
+    query := bleve.NewMatchQuery(url)
+    search := bleve.NewSearchRequest(query)
+    searchResults, err := s.Index.Search(search)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+  fmt.Println(searchResults)
+}
+
+func buildIndexMapping() (*bleve.IndexMapping, error) {
+  // a generic reusable mapping for english text
+  englishTextFieldMapping := bleve.NewTextFieldMapping()
+  englishTextFieldMapping.Analyzer = "en"
+
+  // a generic reusable mapping for keyword text
+  keywordFieldMapping := bleve.NewTextFieldMapping()
+  keywordFieldMapping.Analyzer = "keyword"
+
+  urlMapping := bleve.NewDocumentMapping()
+  // name
+  urlMapping.AddFieldMappingsAt("url", englishTextFieldMapping)
+  // description
+  urlMapping.AddFieldMappingsAt("title", englishTextFieldMapping)
+  urlMapping.AddFieldMappingsAt("type", keywordFieldMapping)
+  urlMapping.AddFieldMappingsAt("style", keywordFieldMapping)
+  urlMapping.AddFieldMappingsAt("category", keywordFieldMapping)
+  breweryMapping := bleve.NewDocumentMapping()
+  breweryMapping.AddFieldMappingsAt("name", englishTextFieldMapping)
+  breweryMapping.AddFieldMappingsAt("description", englishTextFieldMapping)
+  indexMapping := bleve.NewIndexMapping()
+  indexMapping.AddDocumentMapping("beer", urlMapping)
+  indexMapping.AddDocumentMapping("brewery", breweryMapping)
+  indexMapping.TypeField = "type"
+  indexMapping.DefaultAnalyzer = "en"
+  return indexMapping, nil
 }

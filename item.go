@@ -21,3 +21,5 @@ func NewItem(url string) (*Item, error) {
   item.Body = doc.Find("body").Text()
   return item, nil
 }
+
+

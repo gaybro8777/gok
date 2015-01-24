@@ -12,7 +12,7 @@ func main() {
 
   app := cli.NewApp()
   app.Name = "Gok"
-  app.Usage = "Hacker News bookmark with full text search in blevesearch"
+  app.Usage = "A bookmark with full text search in blevesearch and bolt db"
   app.Action = func(c *cli.Context) {
     fmt.Println("Welcome to " + name)
   }
@@ -73,6 +73,15 @@ func main() {
       Usage: "yesterday, today, last week, last month",
       Action: func(c *cli.Context) {
         println("added task: ", c.Args().First())
+      },
+    },
+    {
+      Name:      "search",
+      ShortName: "s",
+      Usage: "Search link by keyword",
+      Action: func(c *cli.Context) {
+        s, _ := NewStorage("gok.db")
+        s.Search(c.Args().First())
       },
     },
   }
