@@ -5,7 +5,7 @@ import (
 	"github.com/codegangsta/cli"
 	"log"
 	"os"
-	//"github.com/kureikain/gok"
+	"github.com/kureikain/gok/import/"
 )
 
 func main() {
@@ -85,6 +85,16 @@ func main() {
 				s.Search(c.Args().First())
 			},
 		},
+    {
+      Name:     "import",
+      Shortname: "i",
+      Usage:    "Import from an external service",
+      Action: func(c *cli.Context) {
+        println("Will start server on port 23500")
+        importer := NewImport(c.Args())
+        importet.Run(23500)
+      }
+    }
 	}
 
 	app.Run(os.Args)

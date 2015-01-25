@@ -37,6 +37,18 @@ $ gok s keyword
 $ gok l
 ```
 
+# GetPocket import
+
+GetPocket used OAuth2 for authentication. It requires a step where we
+have to run the authentication in a GUI and authorize the access on
+pocket website. To do that, we implement a small HTTP in `gok` which do
+authentication, get the access token and push it to other co-routine to
+retrieve and index the URL
+
+```
+$ gok import pocket --consumer_key=yourconsumerkeyhere
+```
+
 # TODO
 
 Lots of thing
