@@ -1,7 +1,9 @@
 # gok
 
 A command line bookmark in Go Lang. It store the URL into a BoltDB and
-index into Bleve Search
+index into Bleve Search.
+
+Pocket is cool but it's too slow and doesn't have a good search feature.
 
 # Build status
 
@@ -18,7 +20,7 @@ $ go install ...
 ### Add an URL
 
 ```
-$ go a url
+$ gok a url
 ```
 
 the URL will be fetched, the title and body is then indexed.
@@ -26,18 +28,22 @@ the URL will be fetched, the title and body is then indexed.
 ### Search
 
 ```
-$ go s keyword
+$ gok s keyword
 ```
 
 ### List all item
 
 ```
-$ go l
+$ gok l
 ```
 
 # TODO
 
 Lots of thing
+
+* Import from Pocket
+* Export to JSON
+* Trigger to Pocket
 
 # Should I use it
 
