@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 	"testing"
+  "fmt"
+	"github.com/boltdb/bolt"
 )
 
 var (
@@ -11,9 +13,17 @@ var (
 
 func init() {
 	s, _ = NewStorage("/tmp/gok")
-	/*if err != nil {*/
-	/*t.Error("Storage fail to create")*/
-	/*}*/
+  cleanup()
+}
+
+func cleanup() {
+  s.DB.Update(func(tx *bolt.Tx) error {
+		err := tx.DeleteBucket([]byte("MyList"))
+		if err != nil {
+			return nil
+		}
+    return nil
+	})
 }
 
 func TestCreateNewStorage(t *testing.T) {
@@ -54,6 +64,24 @@ func TestListItem(t *testing.T) {
   }
 }
 
-/*func TestSearchItem(t *testing.T) {*/
-	/*s.Search("Google")*/
-/*}*/
+func TestSearchItem(t *testing.T) {
+	item, _ := NewItem("http://blog.steventroughtonsmith.com/post/109040361205/mpw-carbon-and-building-classic-mac-os-apps-in-os")
+  s.Add(item)
+
+  result, error := s.Search("Test")
+
+  if error != nil {
+    t.Error(fmt.Println(error))
+  }
+
+  if len(result) < 2 {
+    t.Error("Not found all")
+  }
+
+  if result[0].Url != "http://go-wise.blogspot.com/2011/10/running-tests-in-parallel.html" {
+    t.Error("Incorrect item order " , result[0].Url)
+  }
+  if result[1].Url != "http://blog.steventroughtonsmith.com/post/109040361205/mpw-carbon-and-building-classic-mac-os-apps-in-os" {
+    t.Error("Incorrect item order ", result[1].Url)
+  }
+}

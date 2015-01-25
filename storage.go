@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
+  "fmt"
 	"github.com/boltdb/bolt"
 	"log"
-
 	"github.com/blevesearch/bleve"
+  /*"reflect"*/
+  "errors"
 )
 
 type Storage struct {
@@ -62,6 +63,20 @@ func (s Storage) Add(item *Item) bool {
 	return true
 }
 
+func (s Storage) findByUrl(url string) (*Item, error) {
+  item := &Item{url, "", ""}
+  s.DB.View(func(tx *bolt.Tx) error {
+    b := tx.Bucket([]byte("MyList"))
+    v := b.Get([]byte(url))
+    item.Title = string(v)
+    return nil
+  })
+  if item.Title == "" {
+    return nil, errors.New("Not found")
+  }
+  return item, nil
+}
+
 func (s Storage) List() ([]*Item, error) {
   //We only return 100 items at a time
   result := make([]*Item, 0, 100)
@@ -88,16 +103,33 @@ func (s Storage) List() ([]*Item, error) {
   return result, nil
 }
 
-func (s Storage) Search(url string) {
+func (s Storage) Search(url string) ([]*Item, error) {
 	// search for some text
 	query := bleve.NewMatchQuery(url)
 	search := bleve.NewSearchRequest(query)
 	searchResults, err := s.Index.Search(search)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return nil, err
 	}
-	fmt.Println(searchResults)
+
+  result := make([]*Item, 0, 100)
+  if searchResults.Total == 0 {
+    return result, nil
+  }
+
+  for index, document := range searchResults.Hits {
+    result = append(result, &Item{"", "", ""})
+    result[index], _ = s.findByUrl(document.ID)
+
+    for field, value := range document.Fragments {
+      fmt.Println("sasa %s", document)
+      fmt.Println("%d.... %s %s", index, field, value)
+      /*f := reflect.ValueOf(&result[index]).Elem().FieldByName(fmt.Sprintf("%s", field)).SetString(value)*/
+    }
+  }
+
+  /*fmt.Println(searchResults)*/
+  return result, nil
 }
 
 func buildIndexMapping() (*bleve.IndexMapping, error) {
