@@ -17,8 +17,6 @@ func main() {
 		fmt.Println("Welcome to " + name)
 	}
 
-	println(Version)
-
 	app.Commands = []cli.Command{
 		{
 			Name:      "version",
@@ -64,7 +62,10 @@ func main() {
 			Usage:     "list the link",
 			Action: func(c *cli.Context) {
 				s, _ := NewStorage("gok")
-				s.List()
+				result, _ := s.List()
+        for key, value := range result {
+          fmt.Printf("%d. %s = %s\n", key, value.Url, value.Title)
+        }
 			},
 		},
 		{

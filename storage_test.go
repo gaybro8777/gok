@@ -32,7 +32,7 @@ func TestCreateNewStorage(t *testing.T) {
 }
 
 func TestAddNewItem(t *testing.T) {
-	item, err := NewItem("http://google.com")
+	item, err := NewItem("http://go-wise.blogspot.com/2011/10/running-tests-in-parallel.html")
 	if err != nil {
 		t.Error("Cannot add item")
 	}
@@ -40,9 +40,20 @@ func TestAddNewItem(t *testing.T) {
 }
 
 func TestListItem(t *testing.T) {
-	s.List()
+	result, err := s.List()
+  if err != nil {
+    t.Error("Cannot fetch the list")
+  }
+
+  if len(result) <1 {
+    t.Error("Empty result")
+  }
+
+  if result[0].Url != "http://go-wise.blogspot.com/2011/10/running-tests-in-parallel.html" {
+    t.Error("Incorrect item order")
+  }
 }
 
-func TestSearchItem(t *testing.T) {
-	s.Search("Google")
-}
+/*func TestSearchItem(t *testing.T) {*/
+	/*s.Search("Google")*/
+/*}*/

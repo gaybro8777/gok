@@ -62,24 +62,30 @@ func (s Storage) Add(item *Item) bool {
 	return true
 }
 
-func (s Storage) List() {
+func (s Storage) List() ([]*Item, error) {
+  //We only return 100 items at a time
+  result := make([]*Item, 0, 100)
+
 	err := s.DB.View(func(tx *bolt.Tx) error {
 
 		b := tx.Bucket([]byte("MyList"))
 		c := b.Cursor()
 
-		fmt.Println("-----------------------------------------")
-		fmt.Println("|Key----------------|Value------------------")
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			fmt.Printf("|%s | %s\n|", k, v)
+			/*fmt.Printf("|%s | %s\n|", k, v)*/
+      result = append(result, &Item{string(k), string(v), ""})
 		}
-		fmt.Println("----------------------------------------")
 
-		return nil
+    return nil
+
 	})
+
 	if err != nil {
-		log.Fatal(err)
+		//log.Fatal(err)
+    return nil, err
 	}
+
+  return result, nil
 }
 
 func (s Storage) Search(url string) {
