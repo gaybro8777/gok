@@ -5,7 +5,7 @@ import (
 	"github.com/codegangsta/cli"
 	"log"
 	"os"
-	"github.com/kureikain/gok/import/"
+	"github.com/kureikain/gok/import"
 )
 
 func main() {
@@ -87,14 +87,12 @@ func main() {
 		},
     {
       Name:     "import",
-      Shortname: "i",
-      Usage:    "Import from an external service",
+      ShortName: "i",
+      Usage:    "Import 'Pocket api key'",
       Action: func(c *cli.Context) {
-        println("Will start server on port 23500")
-        importer := NewImport(c.Args())
-        importet.Run(23500)
-      }
-    }
+        importer.Run(c)
+      },
+    },
 	}
 
 	app.Run(os.Args)
