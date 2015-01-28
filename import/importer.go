@@ -30,6 +30,17 @@ func Run(c *cli.Context) {
   println("Will start server with API %s", c.Args()[1])
   mux := http.NewServeMux()
 
+  mux.HandleFunc("/1", func(w http.ResponseWriter, req *http.Request) {
+    fmt.Fprintf(w, TokenCode)
+    TokenCode = "100"
+  })
+  mux.HandleFunc("/2", func(w http.ResponseWriter, req *http.Request) {
+    fmt.Fprintf(w, TokenCode)
+    TokenCode = "200"
+  })
+
+
+
   mux.HandleFunc("/auth", func(w http.ResponseWriter, req *http.Request) {
     url := "https://getpocket.com/v3/oauth/authorize"
     fmt.Fprintf(w, tmplAuth + TokenCode)
